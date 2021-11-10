@@ -79,34 +79,32 @@ const getData = async (url, body, callback, errorCallback) => {
 
 
 export const getChannelNameAPI = (payload, callback, errorCallback) => {
-  const url = `${apiEndpoint}/20dee540e8ca121468c82f2e89d465ae/WF/node-1636353958122/wbChannel`;
+  const url = `${apiEndpoint}`+process.env.REACT_APP_WB_GET_CHANNEL_NAME;
   const body = JSON.stringify(payload);
   getData(url, body, callback, errorCallback);
 }
 
 export const getGroupAPI = (payload, callback, errorCallback) => {
-  const url = `${apiEndpoint}/33ba8a3f83ad0de0cd377c66e9be50c3/WF/node-1636354232192/wbGroup`;
+  const url = `${apiEndpoint}`+process.env.REACT_APP_WB_GET_GROUP;
   const body = JSON.stringify(payload);
   getData(url, body, callback, errorCallback);
 }
 
 export const getAgentNameAPI = (payload, callback, errorCallback) => {
-  const url = `${apiEndpoint}/287037521ffdf94d3969871ed0b25155/WF/node-1636354144937/wbAgent`;
+  const url = `${apiEndpoint}`+process.env.REACT_APP_WB_GET_AGENT_NAME;
   const body = JSON.stringify(payload);
   getData(url, body, callback, errorCallback);
 }
 
 export const getRatingAPI = (payload, callback, errorCallback) => {
-  const url = `${apiEndpoint}/41e7fe813e60c98cd72a3519dd3665c6/WF/node-1635076666221/getRating`;
+  const url = `${apiEndpoint}`+process.env.REACT_APP_WB_GET_AGENT_NAME;
   const body = JSON.stringify(payload);
   getData(url, body, callback, errorCallback);
 }
 
 export const getUserAPI = (payload, callback, errorCallback) => {
-  const url = `${apiEndpoint}/80f80c2c719f33ec0ce0faade2c3dc22/WF/node-1636353156424/wbRating`; 
-  
+  const url = `${apiEndpoint}`+process.env.REACT_APP_WB_GET_USER;
   const body = JSON.stringify(payload);
   getData(url, body, callback, errorCallback);
-  console.log(body);
 }
 
