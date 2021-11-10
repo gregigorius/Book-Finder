@@ -97,7 +97,7 @@ export const getAgentNameAPI = (payload, callback, errorCallback) => {
 }
 
 export const getRatingAPI = (payload, callback, errorCallback) => {
-  const url = `${apiEndpoint}`+process.env.REACT_APP_WB_GET_AGENT_NAME;
+  const url = `${apiEndpoint}`+process.env.REACT_APP_WB_GET_GET_RATING;
   const body = JSON.stringify(payload);
   getData(url, body, callback, errorCallback);
 }
