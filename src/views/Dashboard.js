@@ -18,15 +18,12 @@ import DropdownButton from "react-bootstrap/DropdownButton";
 import { PDFExport } from "@progress/kendo-react-pdf";
 
 import {
-  getChannelNameAPI,
-  getGroupAPI,
-  getAgentNameAPI,
-  getUserAPI,
-  getRatingAPI,
-  getRateSum,
+  getListChannelNameAPI,
+  getListGroupNameAPI,
+  getListAgentNameAPI,
+  getListUserAPI,
+  getListRatingAPI,
 } from "./API";
-
-// import Pagination from "../component/pagination";
 
 var CanvasJSChart = CanvasJSReact.CanvasJSChart;
 var FontAwesome = require("react-fontawesome");
@@ -35,7 +32,6 @@ import { Button, Card, Container, Row, Col, Form } from "react-bootstrap";
 
 function Dashboard() {
   useEffect(() => {
-    // getData();
     getChannelName();
     getGroup();
     getAgentName();
@@ -87,7 +83,7 @@ function Dashboard() {
     };
     const onFailure = () => {};
 
-    getChannelNameAPI(body, onSuccess, onFailure);
+    getListChannelNameAPI(body, onSuccess, onFailure);
   };
 
   const [groupName, setGroup] = useState([]);
@@ -103,7 +99,7 @@ function Dashboard() {
     };
     const onFailure = () => {};
 
-    getGroupAPI(body, onSuccess, onFailure);
+    getListGroupNameAPI(body, onSuccess, onFailure);
   };
 
   const [agentName, setAgent] = useState([]);
@@ -119,7 +115,7 @@ function Dashboard() {
     };
     const onFailure = () => {};
 
-    getAgentNameAPI(body, onSuccess, onFailure);
+    getListAgentNameAPI(body, onSuccess, onFailure);
   };
 
   const [ratingPie, setRating] = useState([]);
@@ -145,7 +141,7 @@ function Dashboard() {
     };
     const onFailure = () => {};
 
-    getRatingAPI(body, onSuccess, onFailure);
+    getListRatingAPI(body, onSuccess, onFailure);
   };
 
   const sumRating =
@@ -226,11 +222,10 @@ function Dashboard() {
       }));
       setUser(names);
       setUserExport(data.output);
-      console.log("name : " + names.customerName);
     };
     const onFailure = () => {};
 
-    getUserAPI(body, onSuccess, onFailure);
+    getListUserAPI(body, onSuccess, onFailure);
   };
 
   const [currentPage, setCurrentPage] = useState("1");
@@ -284,12 +279,9 @@ function Dashboard() {
   const customStyles = {
     control: (provided, state) => ({
       ...provided,
-      // background: "#fff",
-      // borderColor: "#9e9e9e",
       minHeight: "24px",
       height: "24px",
       fontSize: "auto",
-      // boxShadow: state.isFocused ? null : null,
     }),
 
     valueContainer: (provided, state) => ({
@@ -359,14 +351,14 @@ function Dashboard() {
     FileSaver.saveAs(excelData, fileId + fileExtension);
   };
 
-  function formatDate(string){
-    var options = { year: 'numeric', month: 'long', day: 'numeric' };
-    return new Date(string).toLocaleDateString([],options);
-}
+  function formatDate(string) {
+    var options = { year: "numeric", month: "long", day: "numeric" };
+    return new Date(string).toLocaleDateString([], options);
+  }
 
   return (
     <>
-      <Container fluid>
+      <Container flex>
         <Row>
           <Col>
             <Card>
@@ -382,7 +374,6 @@ function Dashboard() {
             </Card>
           </Col>
         </Row>
-
         <Row style={{ fontSize: "12px" }}>
           <Col xs="auto">
             <Card>
@@ -516,7 +507,7 @@ function Dashboard() {
                 type="button"
                 class="btn btn-primary "
                 style={{ fontSize: "13px" }}
-                onClick={getUser}
+                onClick={getUser, getRating}
                 size="sm"
               >
                 <FontAwesome
@@ -715,7 +706,6 @@ function Dashboard() {
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              // padding: "30px 0px",
             }}
           >
             <b>Data per Page :</b>
@@ -727,13 +717,10 @@ function Dashboard() {
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              // padding: "30px 0px",
             }}
           >
             <Select
               styles={customStyles}
-              // menuPlacement="auto"
-              // type="select"
               onChange={(e) => changeLimit(e.value)}
               defaultValue={{ value: "5", label: "5" }}
               options={limitOption}
@@ -746,7 +733,6 @@ function Dashboard() {
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              // padding: "30px 0px",
             }}
           >
             <IconButton
@@ -796,15 +782,12 @@ function Dashboard() {
                       </Col>
                       <Col xs="2">
                         <div className="numbers">
-                          <p
-                            // className="card-category"
-                            style={{ textAlign: "left", fontSize: "15px" }}
-                          >
+                          <p style={{ textAlign: "left", fontSize: "15px" }}>
                             <b>{u.name}</b>
                           </p>
                           <p
                             className="card-category"
-                            style={{ textAlign: "left" , fontSize: "13px"}}
+                            style={{ textAlign: "left", fontSize: "13px" }}
                           >
                             {u.phone}
                           </p>
@@ -843,15 +826,12 @@ function Dashboard() {
                       </Col>
                       <Col xs="2">
                         <div className="numbers">
-                          <p
-                            // className="card-category"
-                            style={{ textAlign: "left" , fontSize: "15px" }}
-                          >
+                          <p style={{ textAlign: "left", fontSize: "15px" }}>
                             <b>{u.agent}</b>
                           </p>
                           <p
                             className="card-category"
-                            style={{ textAlign: "left" , fontSize: "13px"}}
+                            style={{ textAlign: "left", fontSize: "13px" }}
                           >
                             operator
                           </p>
@@ -861,14 +841,14 @@ function Dashboard() {
                         <div className="numbers">
                           <p
                             className="card-category"
-                            style={{ textAlign: "left" , fontSize: "13px"  }}
+                            style={{ textAlign: "left", fontSize: "13px" }}
                           >
                             Ticket Number:
                           </p>
 
                           <p
                             className="card-category"
-                            style={{ textAlign: "left", fontSize: "13px"  }}
+                            style={{ textAlign: "left", fontSize: "13px" }}
                           >
                             {u.ticketNumber}
                           </p>
@@ -888,7 +868,6 @@ function Dashboard() {
                             return <div>⭐⭐⭐⭐⭐</div>;
                           }
                         })()}
-                        {/* <ReactStars count={u.rating} size={24} color="#ffd700" /> */}
                       </Col>
                     </Row>
                   </Card.Body>
@@ -954,7 +933,10 @@ function Dashboard() {
                 </p>
               </Col>
               <Col xs="auto">
-                <p>: {formatDate(startDate.toISOString())} - {formatDate(endDate.toISOString())}</p>
+                <p>
+                  : {formatDate(startDate.toISOString())} -{" "}
+                  {formatDate(endDate.toISOString())}
+                </p>
               </Col>
             </Row>
             <Row>
@@ -975,17 +957,11 @@ function Dashboard() {
                     <Card.Body>
                       <Row>
                         <Col xs="1">
-                          {/* <div className="icon-big text-center icon-user">
-                          <i className="nc-icon nc-circle-09 text-user"></i>
-                        </div> */}
                           <Avatar name={u.name} size="60" round={true} />
                         </Col>
                         <Col xs="2">
                           <div className="numbers">
-                            <p
-                              // className="card-category"
-                              style={{ textAlign: "left" }}
-                            >
+                            <p style={{ textAlign: "left" }}>
                               <b>{u.name}</b>
                             </p>
                             <p
@@ -1009,8 +985,6 @@ function Dashboard() {
                           </div>
                         </Col>
                         <Col xs="1">
-                          {/* <Avatar name= {u.agent} size="60" round={true} /> */}
-                          {/* <Avatar size="50" src="https://cdn.svgapi.com/vector/12353/woman.svg" /> */}
                           {(() => {
                             if (u.agent === "Iyas Operator") {
                               return (
@@ -1076,7 +1050,6 @@ function Dashboard() {
                               return <div>⭐⭐⭐⭐⭐</div>;
                             }
                           })()}
-                          {/* <ReactStars count={u.rating} size={24} color="#ffd700" /> */}
                         </Col>
                       </Row>
                     </Card.Body>
