@@ -2,7 +2,7 @@ import { useState, useEffect, Fragment } from "react";
 import * as React from "react";
 import * as ReactDOM from "react-dom";
 import CanvasJSReact from "../assets/canvasjs.react";
-import DatePicker from "react-datepicker";
+import { DatePicker } from "@progress/kendo-react-dateinputs";
 import Select from "react-select";
 import "react-datepicker/dist/react-datepicker.css";
 import Pagination from "@material-ui/lab/Pagination";
@@ -16,6 +16,14 @@ import { parseToValueDate } from "./dateFormatter";
 import Dropdown from "react-bootstrap/Dropdown";
 import DropdownButton from "react-bootstrap/DropdownButton";
 import { PDFExport } from "@progress/kendo-react-pdf";
+import csLogo from "CS.png";
+import '../assets/css/style.css';
+
+import Dialog from "@mui/material/Dialog";
+import DialogActions from "@mui/material/DialogActions";
+import DialogContent from "@mui/material/DialogContent";
+import DialogContentText from "@mui/material/DialogContentText";
+import DialogTitle from "@mui/material/DialogTitle";
 
 import {
   getListChannelNameAPI,
@@ -28,7 +36,9 @@ import {
 var CanvasJSChart = CanvasJSReact.CanvasJSChart;
 var FontAwesome = require("react-fontawesome");
 
-import { Button, Card, Container, Row, Col, Form } from "react-bootstrap";
+import { Button, Card, Container, Row, Col, Table } from "react-bootstrap";
+import { end } from "@popperjs/core";
+import { textAlign } from "@mui/system";
 
 function Dashboard() {
   useEffect(() => {
@@ -39,8 +49,56 @@ function Dashboard() {
     getUser();
   }, []);
   const pdfExportComponent = React.useRef(null);
+  const [open, setOpen] = React.useState(false);
+  const [open2, setOpen2] = React.useState(false);
+  const [open3, setOpen3] = React.useState(false);
+  const [popupName, setPopupName] = useState();
+  const [popupPhone, setPopupPhone] = useState();
+  const [popupAgent, setPopupAgent] = useState();
+  const [popupRole, setPopupRole] = useState();
+  const [popupRating, setPopupRating] = useState();
+  const [popupTicketNumber, setPopupTicketNumber] = useState();
+  const [popupComment, setPopupComment] = useState();
+  const [popupRatingDate, setPopupRatingDate] = useState();
+
+  const handleClickOpen = () => {
+    setOpen(true);
+  };
+
+  const handleClose = () => {
+    setOpen(false);
+  };
+  const handleClickOpen2 = () => {
+    setOpen2(true);
+  };
+
+  const handleClose2 = () => {
+    setOpen2(false);
+  };
+
+  const handleClickOpen3 = (a, b, c, d, e, f, g, h) => {
+    setOpen3(true);
+    setPopupName(a);
+    setPopupPhone(b);
+    setPopupAgent(c);
+    setPopupRole(d);
+    setPopupRating(e);
+    setPopupTicketNumber(f);
+    setPopupComment(g);
+    setPopupRatingDate(h);
+    // console.log("a = " + a);
+    // console.log("b = " + b);
+    // console.log("c = " + c);
+    // console.log("d = " + d);
+    // console.log("comment = " + g);
+  };
+
+  const handleClose3 = () => {
+    setOpen3(false);
+  };
 
   const rating = [
+    { value: "All", label: "All" },
     { value: "1", label: "Rating 1" },
     { value: "2", label: "Rating 2" },
     { value: "3", label: "Rating 3" },
@@ -51,6 +109,7 @@ function Dashboard() {
     { value: "5", label: "5" },
     { value: "10", label: "10" },
     { value: "50", label: "50" },
+    { value: "100", label: "100" },
   ];
 
   const pageNum = [
@@ -71,13 +130,18 @@ function Dashboard() {
   const [endDate, setEndDate] = useState(new Date(parseToValueDate(today)));
 
   const [channelName, setChannelName] = useState([]);
+  var addDays = function (str, days) {
+    var myDate = new Date(str);
+    myDate.setDate(myDate.getDate() + parseInt(days));
+    return myDate;
+  };
 
   const getChannelName = () => {
     const body = {};
     const onSuccess = ({ data }) => {
       const names = data.output.map((row) => ({
         label: row.channelName,
-        value: row.id,
+        value: row.channelId,
       }));
       setChannelName(names);
     };
@@ -92,8 +156,8 @@ function Dashboard() {
     const body = {};
     const onSuccess = ({ data }) => {
       const names = data.output.map((row) => ({
-        label: row.group,
-        value: row.id,
+        label: row.groupName,
+        value: row.groupId,
       }));
       setGroup(names);
     };
@@ -109,7 +173,7 @@ function Dashboard() {
     const onSuccess = ({ data }) => {
       const names = data.output.map((row) => ({
         label: row.agentName,
-        value: row.id,
+        value: row.agentId,
       }));
       setAgent(names);
     };
@@ -118,7 +182,15 @@ function Dashboard() {
     getListAgentNameAPI(body, onSuccess, onFailure);
   };
 
-  const [ratingPie, setRating] = useState([]);
+  const [ratingPie, setRating] = useState([
+    {
+      rating1: "0.0",
+      rating2: "0.0",
+      rating3: "0.0",
+      rating4: "0.0",
+      rating5: "0.0",
+    },
+  ]);
 
   const getRating = () => {
     const body = {
@@ -131,13 +203,41 @@ function Dashboard() {
     };
     const onSuccess = ({ data }) => {
       const names = data.output;
-      const rating1 = names.rate1;
-      const rating2 = names.rate2;
-      const rating3 = names.rate3;
-      const rating4 = names.rate4;
-      const rating5 = names.rate5;
+      // if (isNaN(names.rating1)) {
+      //   const rating1 = "0.0";
+      // } else {
+      //   const rating1 = names.rating1;
+      // }
+      // if (isNaN(names.rating2)) {
+      //   const rating2 = "0.0";
+      // } else {
+      //   const rating2 = names.rating2;
+      // }
+      // if (isNaN(names.rating3)) {
+      //   const rating3 = "0.0";
+      // } else {
+      //   const rating3 = names.rating3;
+      // }
+      // if (isNaN(names.rating4)) {
+      //   const rating4 = "0.0";
+      // } else {
+      //   const rating4 = names.rating4;
+      // }
+      // if (isNaN(names.rating5)) {
+      //   const rating5 = "0.0";
+      // } else {
+      //   const rating5 = names.rating5;
+      // }
+      const rating1 = names.rating1;
+      const rating2 = names.rating2;
+      const rating3 = names.rating3;
+      const rating4 = names.rating4;
+      const rating5 = names.rating5;
 
       setRating({ rating1, rating2, rating3, rating4, rating5 });
+      // isNaN(parseInt(ratingPie.rating1.toString()))
+      //   ? console.log("BROOOO")
+      //   : console.log("rating 1 = " + ratingPie.rating1.toString());
     };
     const onFailure = () => {};
 
@@ -165,29 +265,29 @@ function Dashboard() {
   const ratingLabel = [
     {
       y: ratingPie.rating5,
-      label: "Rating - 5 ⭐⭐⭐⭐⭐ " + getPercentage(ratingPie.rating5) + "%",
+      label: "⭐⭐⭐⭐⭐     " + getPercentage(ratingPie.rating5) + "%",
       color: "#de6438",
     },
     {
       y: ratingPie.rating4,
-      label: "Rating - 4 ⭐⭐⭐⭐ " + getPercentage(ratingPie.rating4) + "%",
+      label: "⭐⭐⭐⭐             " + getPercentage(ratingPie.rating4) + "%",
       color: "#d07d2f",
     },
     {
       y: ratingPie.rating3,
-      label: "Rating - 3 ⭐⭐⭐     " + getPercentage(ratingPie.rating3) + "%",
+      label: "⭐⭐⭐                 " + getPercentage(ratingPie.rating3) + "%",
       color: "#e89740",
     },
     {
       y: ratingPie.rating2,
       label:
-        "Rating - 2 ⭐⭐           " + getPercentage(ratingPie.rating2) + "%",
+        "⭐⭐                       " + getPercentage(ratingPie.rating2) + "%",
       color: "#f6c34c",
     },
     {
       y: ratingPie.rating1,
       label:
-        "Rating - 1 ⭐                " +
+        "⭐                            " +
         getPercentage(ratingPie.rating1) +
         "%",
       color: "#f6d475",
@@ -200,32 +300,51 @@ function Dashboard() {
   const averageRating = sumAverageRating / sumRating;
   const [user, setUser] = useState([]);
   const [userExport, setUserExport] = useState([]);
+  const [changedRatingDisplay, setChangedRatingDisplay] = useState();
 
   const getUser = () => {
-    const body = {
-      startDate: startDate.toISOString(),
-      endDate: endDate.toISOString(),
-      channelName: selectedChannelName,
-      group: selectedGroup,
-      rating: selectedRating,
-      agentName: selectedAgentName,
-    };
-    const onSuccess = ({ data }) => {
-      const names = data.output.map((row) => ({
-        name: row.customerName,
-        phone: row.customerPhone,
-        email: row.customerEmail,
-        channel: row.customerChannel,
-        agent: row.agentName,
-        ticketNumber: row.ticketNumber,
-        rating: row.rating,
-      }));
-      setUser(names);
-      setUserExport(data.output);
-    };
-    const onFailure = () => {};
+    if (endDate < startDate) {
+      handleClickOpen2();
+    } else if (endDate > addDays(startDate, 30)) {
+      handleClickOpen();
+    } else {
+      const body = {
+        startDate: startDate.toISOString(),
+        endDate: endDate.toISOString(),
+        channelName: selectedChannelName,
+        group: selectedGroup,
+        rating: selectedRating,
+        agentName: selectedAgentName,
+      };
+      const onSuccess = ({ data }) => {
+        const names = data.output.map((row) => ({
+          name: row.customerName,
+          phone: row.customerPhone,
+          email: row.customerEmail,
+          channel: row.channel,
+          group: row.group,
+          agent: row.agentName,
+          role: row.agentRole,
+          ticketNumber: row.ticketNumber,
+          rating: row.rating,
+          closedDate: row.closedDate,
+          comment: row.comment,
+          ratingDate: row.ratingDate,
+        }));
+        setUser(names);
+        setChangedRatingDisplay(selectedRating);
+        console.log(JSON.stringify(names));
 
-    getListUserAPI(body, onSuccess, onFailure);
+        setUserExport(data.output);
+      };
+      const onFailure = () => {};
+      getRating();
+      getPdfAgentTitle();
+      getPdfChannelTitle();
+      getPdfGroupTitle();
+
+      getListUserAPI(body, onSuccess, onFailure);
+    }
   };
 
   const [currentPage, setCurrentPage] = useState("1");
@@ -260,14 +379,15 @@ function Dashboard() {
   const options = {
     exportEnabled: false,
     animationEnabled: true,
+    height: 250,
 
     data: [
       {
         type: "pie",
         startAngle: 75,
-        toolTipContent: "<b>{label}</b>: {y}%",
+        toolTipContent: "<b>{label}</b>: ({y} Rating)",
         legendText: "{label}",
-        indexLabelMaxWidth: 180,
+        indexLabelMaxWidth: 150,
         indexLabelFontSize: 16,
         textAlign: "textAlign - Left",
         indexLabel: "{label} ({y} Rating) ",
@@ -279,7 +399,7 @@ function Dashboard() {
   const customStyles = {
     control: (provided, state) => ({
       ...provided,
-      minHeight: "24px",
+      minHeight: "30px",
       height: "24px",
       fontSize: "auto",
     }),
@@ -307,21 +427,74 @@ function Dashboard() {
     const fileType =
       "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8";
     const fileExtension = ".xlsx";
-    const fileId = `${parseToValueDate(startDate)}-${parseToValueDate(
-      endDate
-    )}- Report Bot Rating`;
+    const fileId = `Live Agent Report: ${parseToValueDate(
+      startDate
+    )}-${parseToValueDate(endDate)}`;
 
     const downloadData = userExport.map((data) => ({
-      "Customer Name": data.customerName,
-      "Phone Number": data.customerPhone,
-      "Channel Type": data.channel,
-      "Agent Name": data.agentName,
-      "Ticket Number": data.ticketNumber,
-      Rating: data.rating,
+      "Customer Name ": data.customerName,
+      "Phone Number ": data.customerPhone,
+      "Channel Type ": data.channel,
+      "Group ": data.group,
+      "Agent Name ": data.agentName,
+      "Ticket Number ": data.ticketNumber,
+      "Closed Date ": formatDate(data.closedDate),
+      "Rating ": data.rating,
+      "Comment ": data.comment,
     }));
+    const ws = XLSX.utils.json_to_sheet(downloadData, {
+      origin: "A10",
+    });
 
-    const ws = XLSX.utils.json_to_sheet(downloadData);
+    var wscols = [
+      { wch: 20 },
+      { wch: 20 },
+      { wch: 20 },
+      { wch: 20 },
+      { wch: 20 },
+      { wch: 50 },
+      { wch: 20 },
+      { wch: 20 },
+      { wch: 50 },
+    ];
+
+    ws["!cols"] = wscols;
+
     const wb = { Sheets: { data: ws }, SheetNames: ["data"] };
+    XLSX.utils.sheet_add_json(
+      wb.Sheets.data,
+      [
+        {
+          Name: "LIVE AGENT REPORT",
+        },
+        {
+          Name: "",
+          RollNo: "",
+        },
+        {
+          Name: "Channel",
+          RollNo: `${pdfChannelTitle}`,
+        },
+        {
+          Name: "Group",
+          RollNo: `${pdfGroupTitle}`,
+        },
+        {
+          Name: "Agent Name",
+          RollNo: `${pdfAgentTitle}`,
+        },
+        {
+          Name: "Date Period",
+          RollNo: `${formatDate(startDate.toISOString())} - ${formatDate(
+            endDate.toISOString()
+          )}`,
+        },
+      ],
+      {
+        skipHeader: true,
+        origin: "A1",
+      }
+    );
     const excelBuffer = XLSX.write(wb, { bookType: "xlsx", type: "array" });
     const excelData = new Blob([excelBuffer], { type: fileType });
     FileSaver.saveAs(excelData, fileId + fileExtension);
@@ -331,23 +504,139 @@ function Dashboard() {
     const fileType =
       "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8";
     const fileExtension = ".csv";
-    const fileId = `${parseToValueDate(startDate)}-${parseToValueDate(
-      endDate
-    )}- Report Bot Rating`;
+    const fileId = `Live Agent Report: ${parseToValueDate(
+      startDate
+    )}-${parseToValueDate(endDate)}`;
 
     const downloadData = userExport.map((data) => ({
-      "Customer Name": data.customerName,
-      "Phone Number": data.customerPhone,
-      "Channel Type": data.channel,
-      "Agent Name": data.agentName,
-      "Ticket Number": data.ticketNumber,
-      Rating: data.rating,
+      "Customer Name ": data.customerName,
+      "Phone Number ": data.customerPhone,
+      "Channel Type ": data.channel,
+      "Group ": data.group,
+      "Agent Name ": data.agentName,
+      "Ticket Number ": data.ticketNumber,
+      "Closed Date ": formatDate(data.closedDate),
+      "Rating ": data.rating,
+      "Comment ": data.comment,
     }));
+    const ws = XLSX.utils.json_to_sheet(downloadData, {
+      origin: "A10",
+    });
 
-    const ws = XLSX.utils.json_to_sheet(downloadData);
+    var wscols = [
+      { wch: 20 },
+      { wch: 20 },
+      { wch: 20 },
+      { wch: 20 },
+      { wch: 20 },
+      { wch: 50 },
+      { wch: 20 },
+      { wch: 20 },
+      { wch: 50 },
+    ];
+
+    ws["!cols"] = wscols;
+
     const wb = { Sheets: { data: ws }, SheetNames: ["data"] };
+    XLSX.utils.sheet_add_json(
+      wb.Sheets.data,
+      [
+        {
+          Name: "LIVE AGENT REPORT",
+        },
+        {
+          Name: "",
+          RollNo: "",
+        },
+        {
+          Name: "Channel",
+          RollNo: `${pdfChannelTitle}`,
+        },
+        {
+          Name: "Group",
+          RollNo: `${pdfGroupTitle}`,
+        },
+        {
+          Name: "Agent Name",
+          RollNo: `${pdfAgentTitle}`,
+        },
+        {
+          Name: "Date Period",
+          RollNo: `${formatDate(startDate.toISOString())} - ${formatDate(
+            endDate.toISOString()
+          )}`,
+        },
+      ],
+      {
+        skipHeader: true,
+        origin: "A1",
+      }
+    );
     const excelBuffer = XLSX.write(wb, { bookType: "xlsx", type: "array" });
     const excelData = new Blob([excelBuffer], { type: fileType });
+    FileSaver.saveAs(excelData, fileId + fileExtension);
+  };
+
+  const exportToTXT = () => {
+    const fileType =
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8_No_BOM";
+    const fileExtension = ".txt";
+    const fileId = `Live Agent Report: ${parseToValueDate(
+      startDate
+    )}-${parseToValueDate(endDate)}`;
+
+    const downloadData = userExport.map((data) => ({
+      "Customer Name |": data.customerName + "|",
+      "Phone Number |": data.customerPhone + "|",
+      "Channel Type |": data.channel + "|",
+      "Group |": data.group + "|",
+      "Agent Name |": data.agentName + "|",
+      "Ticket Number |": data.ticketNumber + "|",
+      "Closed Date |": formatDate(data.closedDate) + "|",
+      "Rating |": data.rating + "|",
+      "Comment |": data.comment,
+    }));
+
+    const ws = XLSX.utils.json_to_sheet(downloadData, {
+      origin: "A10",
+    });
+    XLSX.utils.sheet_add_json(
+      ws,
+      [
+        {
+          Name: "LIVE AGENT REPORT",
+        },
+        {
+          Name: "",
+          RollNo: "",
+        },
+        {
+          Name: "Channel",
+          RollNo: `${pdfChannelTitle}`,
+        },
+        {
+          Name: "Group",
+          RollNo: `${pdfGroupTitle}`,
+        },
+        {
+          Name: "Agent Name",
+          RollNo: `${pdfAgentTitle}`,
+        },
+        {
+          Name: "Date Period",
+          RollNo: `${formatDate(startDate.toISOString())} - ${formatDate(
+            endDate.toISOString()
+          )}`,
+        },
+      ],
+      {
+        skipHeader: true,
+        origin: "A1",
+      }
+    );
+    const wb = XLSX.utils.sheet_to_txt(ws);
+    // const excelBuffer = XLSX.write(wb, { bookType: "txt", type: "array" });
+    const excelData = new Blob([wb], { type: fileType });
     FileSaver.saveAs(excelData, fileId + fileExtension);
   };
 
@@ -356,413 +645,665 @@ function Dashboard() {
     return new Date(string).toLocaleDateString([], options);
   }
 
+  //Title PDF
+  const [pdfAgentTitle, setPdfAgentTitle] = useState("all");
+  const [pdfChannelTitle, setPdfChannelTitle] = useState("all");
+  const [pdfGroupTitle, setPdfGroupTitle] = useState("all");
+
+  const getPdfAgentTitle = () => {
+    agentName.map((u) =>
+      u.value === selectedAgentName ? setPdfAgentTitle(u.label) : null
+    );
+  };
+  const getPdfChannelTitle = () => {
+    channelName.map((u) =>
+      u.value === selectedChannelName ? setPdfChannelTitle(u.label) : null
+    );
+  };
+  const getPdfGroupTitle = () => {
+    groupName.map((u) =>
+      u.value === selectedGroup ? setPdfGroupTitle(u.label) : null
+    );
+  };
+
+  const pdfFileId = `Live Agent Report: ${parseToValueDate(
+    startDate
+  )}-${parseToValueDate(endDate)}`;
+
   return (
     <>
-      <Container flex>
+      <Container fluid sm style={{ paddingLeft: 15, paddingRight: 15 }}>
         <Row>
-          <Col>
-            <Card>
-              <Card.Body>
-                <Row>
-                  <Col xs="5">
-                    <h6>
-                      <b>Live agent Rating</b>
-                    </h6>
-                  </Col>
-                </Row>
-              </Card.Body>
-            </Card>
-          </Col>
+          <Col style={{ fontSize: "10px", alignItems: "center" }}></Col>
         </Row>
-        <Row style={{ fontSize: "12px" }}>
-          <Col xs="auto">
+        <Row
+          style={{ fontSize: "12px", alignItems: "center", marginTop: "15px" }}
+        >
+          <Col xs="11">
             <Card>
               <Card.Header>
-                <FontAwesome
-                  className="super-crazy-colors"
-                  name="calendar"
-                  size="1x"
-                />
-                Start Date:
+                <Row>
+                  <Col xs="2">
+                    <FontAwesome
+                      className="super-crazy-colors"
+                      name="calendar"
+                      size="1x"
+                    />
+                    Start Date:
+                  </Col>
+                  <Col xs="2">
+                    <FontAwesome
+                      className="super-crazy-colors"
+                      name="calendar"
+                      size="1x"
+                    />
+                    End Date:
+                  </Col>
+                  <Col xs="2">
+                    <FontAwesome
+                      className="super-crazy-colors"
+                      name="user"
+                      size="1x"
+                    />
+                    {} Channel Name: ㅤ
+                  </Col>
+                  <Col xs="2">
+                    <FontAwesome
+                      className="super-crazy-colors"
+                      name="users"
+                      size="1x"
+                    />
+                    {} Group:
+                  </Col>
+                  <Col xs="2">
+                    <FontAwesome
+                      className="super-crazy-colors"
+                      name="star"
+                      size="1x"
+                    />
+                    {} Rating:
+                  </Col>
+                  <Col xs="2">
+                    <FontAwesome
+                      className="super-crazy-colors"
+                      name="user"
+                      size="1x"
+                    />
+                    {} Agent Name:ㅤㅤㅤ
+                  </Col>
+                </Row>
               </Card.Header>
               <Card.Body>
-                <div class="myContainer">
-                  <DatePicker
-                    selected={startDate}
-                    onChange={(e) => setStartDate(e)}
-                  />
+                <div
+                  style={{
+                    marginTop: `-10px`,
+                    marginBottom: `-15px`,
+                    fontSize: 12,
+                  }}
+                >
+                  <Row>
+                    <Col xs="2">
+                      <DatePicker
+                        defaultValue={startDate}
+                        value={startDate}
+                        onChange={(e) =>
+                          e.value !== null ? setStartDate(e.value) : null
+                        }
+                        width={`95%`}
+                        required={true}
+                        // minDate={addDays(endDate, -31)}
+                        max={endDate}
+                        title={"MM/DD/YYYY"}
+                      />
+                    </Col>
+                    <Col xs="2">
+                      <DatePicker
+                        defaultValue={endDate}
+                        value={endDate}
+                        min={startDate}
+                        width={`95%`}
+                        required={true}
+                        // maxDate={addDays(startDate, 31)}
+                        onChange={(e) =>
+                          e.value !== null
+                            ? setEndDate(new Date(e.value))
+                            : null
+                        }
+                        title={"MM/DD/YYYY"}
+                      />
+                    </Col>
+                    <Col xs="2">
+                      <Select
+                        styles={customStyles}
+                        menuPlacement="auto"
+                        type="select"
+                        onChange={(e) => setSelectedChannelName(e.value)}
+                        defaultValue={{ value: "All", label: "All" }}
+                        options={channelName}
+                        theme={(theme) => ({
+                          ...theme,
+                          borderRadius: 3,
+                        })}
+                      />
+                    </Col>
+                    <Col xs="2">
+                      <Select
+                        styles={customStyles}
+                        menuPlacement="auto"
+                        type="select"
+                        onChange={(e) => setSelectedGroup(e.value)}
+                        defaultValue={{ value: "All", label: "All" }}
+                        options={groupName}
+                      />
+                    </Col>
+                    <Col xs="2">
+                      <Select
+                        styles={customStyles}
+                        menuPlacement="auto"
+                        type="select"
+                        onChange={(e) => setSelectedRating(e.value)}
+                        defaultValue={{ value: "All", label: "All" }}
+                        options={rating}
+                      />
+                    </Col>
+                    <Col xs="2">
+                      <Select
+                        styles={customStyles}
+                        menuPlacement="auto"
+                        type="select"
+                        onChange={(e) => setSelectedAgentName(e.value)}
+                        defaultValue={{ value: "All", label: "All" }}
+                        options={agentName}
+                      />
+                      ㅤ
+                    </Col>
+                  </Row>
                 </div>
               </Card.Body>
             </Card>
           </Col>
-          <Col xs="auto">
-            <Card>
-              <Card.Header>
-                <FontAwesome
-                  className="super-crazy-colors"
-                  name="calendar"
-                  size="1x"
-                />
-                End Date:
-              </Card.Header>
-              <Card.Body>
-                <DatePicker
-                  selected={endDate}
-                  onChange={(e) => setEndDate(e)}
-                />
-              </Card.Body>
-            </Card>
-          </Col>
-          <Col xs="auto">
-            <Card>
-              <Card.Header>
-                <FontAwesome
-                  className="super-crazy-colors"
-                  name="user"
-                  size="1x"
-                />
-                {} Channel Name: ㅤㅤㅤㅤㅤ
-              </Card.Header>
-              <Card.Body>
-                <Select
-                  styles={customStyles}
-                  menuPlacement="auto"
-                  type="select"
-                  onChange={(e) => setSelectedChannelName(e.value)}
-                  defaultValue={{ value: "All", label: "All" }}
-                  options={channelName}
-                />
-              </Card.Body>
-            </Card>
-          </Col>
-          <Col xs lg="auto">
-            <Card>
-              <Card.Header>
-                <FontAwesome
-                  className="super-crazy-colors"
-                  name="users"
-                  size="1x"
-                />
-                {} Group: ㅤㅤㅤㅤㅤㅤ
-              </Card.Header>
-              <Card.Body>
-                <Select
-                  styles={customStyles}
-                  menuPlacement="auto"
-                  type="select"
-                  onChange={(e) => setSelectedGroup(e.value)}
-                  defaultValue={{ value: "All", label: "All" }}
-                  options={groupName}
-                />
-              </Card.Body>
-            </Card>
-          </Col>
-          <Col xs lg="auto">
-            <Card>
-              <Card.Header>
-                <FontAwesome
-                  className="super-crazy-colors"
-                  name="star"
-                  size="1x"
-                />
-                {} Rating:ㅤㅤㅤㅤㅤㅤ
-              </Card.Header>
-              <Card.Body>
-                <Select
-                  styles={customStyles}
-                  menuPlacement="auto"
-                  type="select"
-                  onChange={(e) => setSelectedRating(e.value)}
-                  defaultValue={{ value: "All", label: "All" }}
-                  options={rating}
-                />
-              </Card.Body>
-            </Card>
-          </Col>
-          <Col xs lg="auto">
-            <Card>
-              <Card.Header>
-                <FontAwesome
-                  className="super-crazy-colors"
-                  name="user"
-                  size="1x"
-                />
-                {} Agent Name:ㅤㅤㅤㅤㅤㅤㅤㅤ
-              </Card.Header>
-              <Card.Body>
-                <Select
-                  styles={customStyles}
-                  menuPlacement="auto"
-                  type="select"
-                  onChange={(e) => setSelectedAgentName(e.label)}
-                  defaultValue={{ value: "All", label: "All" }}
-                  options={agentName}
-                />
-              </Card.Body>
-            </Card>
-          </Col>
-          <Col xs lg="auto">
-            <p>
-              <Button
-                type="button"
-                class="btn btn-primary "
-                style={{ fontSize: "13px" }}
-                onClick={getUser, getRating}
-                size="sm"
-              >
-                <FontAwesome
-                  className="super-crazy-colors"
-                  name="filter"
-                  size="1x"
-                />
-                ㅤFilterㅤ
-              </Button>
-            </p>
-            <p>
-              <div class="btn-group">
-                <DropdownButton
-                  id="dropdown-basic-button"
-                  title="Download  "
-                  size="sm"
-                  style={{ fontSize: "10px" }}
+
+          <Col xs lg="1" style={{ alignItems: "center" }}>
+            <Row style={{ alignItems: "stretch" }}>
+              <Col xs="12">
+                <div
+                  style={{
+                    marginTop: `-15px`,
+                    marginBottom: `-5px`,
+                  }}
                 >
-                  <Dropdown.Item
-                    onClick={exportToExcel}
-                    style={{ fontSize: "10px" }}
-                  >
-                    Download XSLX
-                  </Dropdown.Item>
-                  <Dropdown.Item
-                    onClick={exportToCSV}
-                    style={{ fontSize: "10px" }}
-                  >
-                    Download CSV
-                  </Dropdown.Item>
-                  <Dropdown.Item
-                    onClick={() => {
-                      if (pdfExportComponent.current) {
-                        pdfExportComponent.current.save();
-                      }
-                    }}
-                    style={{ fontSize: "10px" }}
-                  >
-                    Download PDF
-                  </Dropdown.Item>
-                </DropdownButton>
-              </div>
-            </p>
-          </Col>
-        </Row>
-
-        <Row>
-          <Col>
-            <Card>
-              <Card.Body>
-                <Row className="align-items-center">
-                  <Col xs="8">
-                    <Card.Title as="h4" style={{ textAlign: "center" }}>
-                      Total Rating
-                    </Card.Title>
-                    <p
-                      className="card-category"
-                      style={{ textAlign: "center" }}
+                  <p>
+                    <Button
+                      type="button"
+                      // class="btn btn-primary "
+                      style={{ fontSize: "13px", minWidth: "52px" }}
+                      onClick={getUser}
+                      size="sm"
                     >
-                      <b>Grand Total: 100% ({sumRating} Rating)</b>
-                    </p>
-                  </Col>
-                </Row>
-                <Row className="align-items-center">
-                  <Col xs="8">
-                    <CanvasJSChart options={options} />
-                  </Col>
-                  <Col xs="3">
-                    <Row>
-                      <Col xs="3">
-                        <h3 style={{ textAlign: "center" }}>
-                          <FontAwesome
-                            style={{ color: "#ffd700" }}
-                            name="star"
-                            size="7x"
-                          />
-                        </h3>
-                        <br></br>
-                      </Col>
-                      <Col xs="10">
-                        <h5 style={{ textAlign: "center" }}>
-                          Overall Average Rating
-                        </h5>
-                        <h3 style={{ textAlign: "center" }}>
-                          <b>{averageRating}</b>
-                        </h3>
-                      </Col>
-                    </Row>
-                  </Col>
-                </Row>
-                <Row>
-                  <Col xs lg="auto">
-                    <div style={{ marginTop: `-20%`, color: "#fff" }}>
                       <FontAwesome
                         className="super-crazy-colors"
-                        name="square"
-                        size="2x"
+                        name="filter"
+                        size="1x"
                       />
+                    </Button>
+                  </p>
+                </div>
+              </Col>
+              <Col xs="12">
+                <p>
+                  {/* <div
+                    style={{
+                      marginTop: `-13%`,
+                    }}
+                  > */}
+                  <DropdownButton
+                    id="dropdown-basic-button"
+                    // class="btn btn-primary "
+                    title={
                       <FontAwesome
                         className="super-crazy-colors"
-                        name="square"
-                        size="2x"
+                        name="save"
+                        size="1x"
                       />
-                      <FontAwesome
-                        className="super-crazy-colors"
-                        name="square"
-                        size="2x"
-                      />
-                      <FontAwesome
-                        className="super-crazy-colors"
-                        name="square"
-                        size="2x"
-                      />
-                    </div>
-                  </Col>
-                  <Col xs lg="5">
-                    {"ㅤㅤㅤㅤㅤㅤ"}
-                  </Col>
-                  <Col xs lg="auto">
-                    <div style={{ marginTop: `-10%`, color: "#fff" }}>
-                      <FontAwesome
-                        className="super-crazy-colors"
-                        name="square"
-                        size="2x"
-                      />
-                      <FontAwesome
-                        className="super-crazy-colors"
-                        name="square"
-                        size="2x"
-                      />
-                      <FontAwesome
-                        className="super-crazy-colors"
-                        name="square"
-                        size="2x"
-                      />
-                      <FontAwesome
-                        className="super-crazy-colors"
-                        name="square"
-                        size="2x"
-                      />
-                      <FontAwesome
-                        className="super-crazy-colors"
-                        name="square"
-                        size="2x"
-                      />
-                      <FontAwesome
-                        className="super-crazy-colors"
-                        name="square"
-                        size="2x"
-                      />
-                      <FontAwesome
-                        className="super-crazy-colors"
-                        name="square"
-                        size="2x"
-                      />
-                      <FontAwesome
-                        className="super-crazy-colors"
-                        name="square"
-                        size="2x"
-                      />
-                      <FontAwesome
-                        className="super-crazy-colors"
-                        name="square"
-                        size="2x"
-                      />
-                      <FontAwesome
-                        className="super-crazy-colors"
-                        name="square"
-                        size="2x"
-                      />
-                      <FontAwesome
-                        className="super-crazy-colors"
-                        name="square"
-                        size="2x"
-                      />
-                      <FontAwesome
-                        className="super-crazy-colors"
-                        name="square"
-                        size="2x"
-                      />
-                    </div>
-                  </Col>
-                </Row>
-                <Row>
-                  <Col>{"ㅤㅤㅤㅤㅤㅤ"}</Col>
-                </Row>
-              </Card.Body>
-            </Card>
+                    }
+                    size="sm"
+                    minWidth="150px"
+                    style={{ fontSize: "10px", minWidth: "150px" }}
+                  >
+                    <Dropdown.Item
+                      onClick={exportToExcel}
+                      style={{ fontSize: "10px", minWidth: "150px" }}
+                    >
+                      Download XSLX
+                    </Dropdown.Item>
+                    <Dropdown.Item
+                      onClick={exportToCSV}
+                      style={{ fontSize: "10px", minWidth: "150px" }}
+                    >
+                      Download CSV
+                    </Dropdown.Item>
+                    <Dropdown.Item
+                      onClick={exportToTXT}
+                      style={{ fontSize: "10px", minWidth: "150px" }}
+                    >
+                      Download TXT
+                    </Dropdown.Item>
+                    <Dropdown.Item
+                      onClick={() => {
+                        if (pdfExportComponent.current) {
+                          pdfExportComponent.current.save();
+                        }
+                      }}
+                      style={{ fontSize: "10px", minWidth: "150px" }}
+                    >
+                      Download PDF
+                    </Dropdown.Item>
+                  </DropdownButton>
+                  {/* </div> */}
+                </p>
+              </Col>
+            </Row>
           </Col>
         </Row>
+        <div>
+          <Dialog
+            open={open2}
+            onClose={handleClose2}
+            aria-labelledby="alert-dialog-title"
+            aria-describedby="alert-dialog-description"
+          >
+            <DialogTitle id="alert-dialog-title">{"InvalidDate"}</DialogTitle>
+            <DialogContent>
+              <DialogContentText id="alert-dialog-description">
+                Start date should be lower than End date.
+              </DialogContentText>
+            </DialogContent>
+            <DialogActions>
+              <Button onClick={handleClose2} autoFocus size="sm">
+                <FontAwesome
+                  style={{
+                    textAlign: "center",
+                    alignItems: "center",
+                  }}
+                  name="check"
+                  size="1x"
+                />
+                ㅤOK
+              </Button>
+            </DialogActions>
+          </Dialog>
+        </div>
 
-        <Row style={{ fontSize: "12px" }}>
-          <Col
-            xs="auto"
-            style={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-            }}
+        <div>
+          <Dialog
+            open={open}
+            onClose={handleClose}
+            aria-labelledby="alert-dialog-title"
+            aria-describedby="alert-dialog-description"
           >
-            <b>Data per Page :</b>
-          </Col>
-          <Col
-            xs
-            lg="auto"
-            style={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-            }}
-          >
-            <Select
-              styles={customStyles}
-              onChange={(e) => changeLimit(e.value)}
-              defaultValue={{ value: "5", label: "5" }}
-              options={limitOption}
-            />
-          </Col>
-          <Col
-            xs
-            lg="6"
-            style={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-            }}
-          >
-            <IconButton
-              key="left"
-              aria-label="next"
-              color="inherit"
-              onClick={prevPage}
+            <DialogTitle id="alert-dialog-title">{"Date Limit"}</DialogTitle>
+            <DialogContent>
+              <DialogContentText id="alert-dialog-description">
+                Date are more than 31 days.
+              </DialogContentText>
+            </DialogContent>
+            <DialogActions>
+              <Button onClick={handleClose} autoFocus size="sm">
+                <FontAwesome
+                  style={{
+                    textAlign: "center",
+                    alignItems: "center",
+                  }}
+                  name="check"
+                  size="1x"
+                />
+                ㅤOK
+              </Button>
+            </DialogActions>
+          </Dialog>
+        </div>
+        <div
+          style={{
+            marginTop: `-15px`,
+            marginBottom: `-10px`,
+          }}
+        >
+          <Row>
+            <Col>
+              <Card>
+                <Card.Body>
+                  <Row>
+                    <Col xs="8">
+                      <Card.Title
+                        as="h3"
+                        style={{ textAlign: "center", alignItems: "center" }}
+                      >
+                        <b>Total Rating</b>
+                      </Card.Title>
+                      <p
+                        // className="card-category"
+                        style={{ textAlign: "center", alignItems: "center" }}
+                      >
+                        {(() => {
+                          if (changedRatingDisplay == 1) {
+                            return (
+                              <p>
+                                Grand Total: 100% (
+                                {isNaN(ratingPie.rating1)
+                                  ? "0"
+                                  : parseInt(ratingPie.rating1, 10)}{" "}
+                                Rating)
+                              </p>
+                            );
+                          } else if (changedRatingDisplay == 2) {
+                            return (
+                              <p>
+                                Grand Total: 100% (
+                                {isNaN(ratingPie.rating2)
+                                  ? "0"
+                                  : parseInt(ratingPie.rating2, 10)}{" "}
+                                Rating)
+                              </p>
+                            );
+                          } else if (changedRatingDisplay == 3) {
+                            return (
+                              <p>
+                                Grand Total: 100% (
+                                {isNaN(ratingPie.rating3)
+                                  ? "0"
+                                  : parseInt(ratingPie.rating3, 10)}{" "}
+                                Rating)
+                              </p>
+                            );
+                          } else if (changedRatingDisplay == 4) {
+                            return (
+                              <p>
+                                Grand Total: 100% (
+                                {isNaN(ratingPie.rating4)
+                                  ? "0"
+                                  : parseInt(ratingPie.rating4, 10)}{" "}
+                                Rating)
+                              </p>
+                            );
+                          } else if (changedRatingDisplay == 5) {
+                            return (
+                              <p>
+                                Grand Total: 100% (
+                                {isNaN(ratingPie.rating5)
+                                  ? "0"
+                                  : parseInt(ratingPie.rating5, 10)}{" "}
+                                Rating)
+                              </p>
+                            );
+                          } else {
+                            return (
+                              <p>Grand Total: 100% ({sumRating} Rating)</p>
+                            );
+                          }
+                        })()}
+                      </p>
+                    </Col>
+                  </Row>
+                  <Row className="align-items-center">
+                    <Col xs="8">
+                      <CanvasJSChart options={options} />
+                    </Col>
+                    <Col xs="3">
+                      <Row>
+                        <Col xs="12">
+                          <h5
+                            style={{
+                              textAlign: "center",
+                              alignItems: "center",
+                            }}
+                          >
+                            Overall Average Rating
+                          </h5>
+                          <h3
+                            style={{
+                              textAlign: "center",
+                              alignItems: "center",
+                            }}
+                          >
+                            {(() => {
+                              if (changedRatingDisplay == 1) {
+                                return (
+                                  <b>{ratingPie.rating1 > 0 ? 1 : "NaN"}</b>
+                                );
+                              } else if (changedRatingDisplay == 2) {
+                                return (
+                                  <b>{ratingPie.rating2 > 0 ? 2 : "NaN"}</b>
+                                );
+                              } else if (changedRatingDisplay == 3) {
+                                return (
+                                  <b>{ratingPie.rating3 > 0 ? 3 : "NaN"}</b>
+                                );
+                              } else if (changedRatingDisplay == 4) {
+                                return (
+                                  <b>{ratingPie.rating4 > 0 ? 4 : "NaN"}</b>
+                                );
+                              } else if (changedRatingDisplay == 5) {
+                                return (
+                                  <b>{ratingPie.rating5 > 0 ? 5 : "NaN"}</b>
+                                );
+                              } else {
+                                return (
+                                  <b>
+                                    {isNaN(averageRating)
+                                      ? "NaN"
+                                      : averageRating.toFixed(2)}
+                                  </b>
+                                );
+                              }
+                            })()}
+                          </h3>
+                        </Col>
+                        <Col
+                          xs="12"
+                          style={{
+                            textAlign: "center",
+                            alignItems: "center",
+                            justifyContent: "center",
+                          }}
+                        >
+                          <div
+                            style={{
+                              marginTop: `-25px`,
+                            }}
+                          >
+                            <h1
+                              style={{
+                                textAlign: "center",
+                                alignItems: "center",
+                                justifyContent: "center",
+                              }}
+                            >
+                              ⭐
+                            </h1>
+                          </div>
+                        </Col>
+                      </Row>
+                    </Col>
+                  </Row>
+                  <Row>
+                    <Col xs lg="auto">
+                      <div
+                        style={{
+                          marginTop: `-21%`,
+                          marginBottom: `-30%`,
+                          color: "#fff",
+                        }}
+                      >
+                        <FontAwesome
+                          className="super-crazy-colors"
+                          name="square"
+                          size="2x"
+                        />
+                        <FontAwesome
+                          className="super-crazy-colors"
+                          name="square"
+                          size="2x"
+                        />
+                        <FontAwesome
+                          className="super-crazy-colors"
+                          name="square"
+                          size="2x"
+                        />
+                        <FontAwesome
+                          className="super-crazy-colors"
+                          name="square"
+                          size="2x"
+                        />
+                      </div>
+                    </Col>
+                    <Col xs lg="5">
+                      {"ㅤㅤㅤㅤㅤㅤ"}
+                    </Col>
+                    <Col xs lg="auto">
+                      <div style={{ marginTop: `-10%`, color: "#fff" }}>
+                        <FontAwesome
+                          className="super-crazy-colors"
+                          name="square"
+                          size="2x"
+                        />
+                        <FontAwesome
+                          className="super-crazy-colors"
+                          name="square"
+                          size="2x"
+                        />
+                        <FontAwesome
+                          className="super-crazy-colors"
+                          name="square"
+                          size="2x"
+                        />
+                        <FontAwesome
+                          className="super-crazy-colors"
+                          name="square"
+                          size="2x"
+                        />
+                        <FontAwesome
+                          className="super-crazy-colors"
+                          name="square"
+                          size="2x"
+                        />
+                        <FontAwesome
+                          className="super-crazy-colors"
+                          name="square"
+                          size="2x"
+                        />
+                        <FontAwesome
+                          className="super-crazy-colors"
+                          name="square"
+                          size="2x"
+                        />
+                        <FontAwesome
+                          className="super-crazy-colors"
+                          name="square"
+                          size="2x"
+                        />
+                        <FontAwesome
+                          className="super-crazy-colors"
+                          name="square"
+                          size="2x"
+                        />
+                        <FontAwesome
+                          className="super-crazy-colors"
+                          name="square"
+                          size="2x"
+                        />
+                        <FontAwesome
+                          className="super-crazy-colors"
+                          name="square"
+                          size="2x"
+                        />
+                        <FontAwesome
+                          className="super-crazy-colors"
+                          name="square"
+                          size="2x"
+                        />
+                      </div>
+                    </Col>
+                  </Row>
+                  <Row>
+                    <Col>{"ㅤㅤㅤㅤㅤㅤ"}</Col>
+                  </Row>
+                </Card.Body>
+              </Card>
+            </Col>
+          </Row>
+        </div>
+        <div
+          style={{
+            marginTop: `-20px`,
+            marginBottom: `-20px`,
+          }}
+        >
+          <Row style={{ fontSize: "12px" }}>
+            <Col
+              xs="auto"
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
             >
-              <ChevronLeftRoundedIcon />
-            </IconButton>
-            <Pagination
-              size="small"
-              siblingCount={1}
-              count={Math.ceil(user.length / limit)}
-              page={currentPage - 1 + 1}
-              onChange={handlePageChange}
-              hideNextButton={true}
-              hidePrevButton={true}
-            />
-            <IconButton
-              key="right"
-              aria-label="next"
-              color="inherit"
-              onClick={nextPage}
+              <b>Data per Page :</b>
+            </Col>
+            <Col
+              xs
+              lg="auto"
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
             >
-              <ChevronRightRoundedIcon />
-            </IconButton>
-            Halaman {currentPage} dari {Math.ceil(user.length / limit)} halaman
-          </Col>
-        </Row>
+              <Select
+                styles={customStyles}
+                onChange={(e) => changeLimit(e.value)}
+                defaultValue={{ value: "5", label: "5" }}
+                options={limitOption}
+              />
+            </Col>
+            <Col
+              xs
+              lg="6"
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              <IconButton
+                key="left"
+                aria-label="next"
+                color="inherit"
+                onClick={prevPage}
+              >
+                <ChevronLeftRoundedIcon />
+              </IconButton>
+              <Pagination
+                size="small"
+                siblingCount={1}
+                count={Math.ceil(user.length / limit)}
+                page={currentPage - 1 + 1}
+                onChange={handlePageChange}
+                hideNextButton={true}
+                hidePrevButton={true}
+              />
+              <IconButton
+                key="right"
+                aria-label="next"
+                color="inherit"
+                onClick={nextPage}
+              >
+                <ChevronRightRoundedIcon />
+              </IconButton>
+              Halaman {currentPage} dari {Math.ceil(user.length / limit)}{" "}
+              halaman
+            </Col>
+          </Row>
+        </div>
         <Row>
           <Col>{"ㅤㅤㅤㅤㅤㅤ"}</Col>
         </Row>
@@ -772,109 +1313,276 @@ function Dashboard() {
             parseInt(limit) * parseInt(currentPage)
           )
           .map((u) => (
-            <Row>
-              <Col>
-                <Card className="card-stats">
-                  <Card.Body>
+            <div
+              style={{
+                marginBottom: `-20px`,
+              }}
+            >
+              <Row>
+                <Col
+                  onClick={() =>
+                    handleClickOpen3(
+                      u.name,
+                      u.phone,
+                      u.agent,
+                      u.role,
+                      u.rating,
+                      u.ticketNumber,
+                      u.comment,
+                      u.ratingDate
+                    )
+                  }
+                >
+                  <Card className="card-stats">
+                    <Card.Body>
+                      <Row>
+                        <Col xs="1">
+                          <Avatar name={u.name} size="40" round={true} />
+                        </Col>
+                        <Col xs="2">
+                          <div className="numbers">
+                            <p style={{ textAlign: "left", fontSize: "15px" }}>
+                              <b>{u.name}</b>
+                            </p>
+                            <p
+                              className="card-category"
+                              style={{ textAlign: "left", fontSize: "13px" }}
+                            >
+                              {u.phone}
+                            </p>
+
+                            <p
+                              className="card-category"
+                              style={{ fontSize: "13px" }}
+                            >
+                              ㅤ
+                            </p>
+                          </div>
+                        </Col>
+                        <Col xs="1">
+                          <Avatar alt={u.agent} src={csLogo} size="40" />
+                        </Col>
+                        <Col xs="2">
+                          <div className="numbers">
+                            <p style={{ textAlign: "left", fontSize: "15px" }}>
+                              <b>{u.agent}</b>
+                            </p>
+                            <p
+                              className="card-category"
+                              style={{ textAlign: "left", fontSize: "13px" }}
+                            >
+                              {u.role} {u.group}
+                            </p>
+                          </div>
+                        </Col>
+                        <Col xs="4">
+                          <div className="numbers">
+                            <p
+                              className="card-category"
+                              style={{ textAlign: "left", fontSize: "13px" }}
+                            >
+                              Ticket Number:
+                            </p>
+
+                            <p
+                              className="card-category"
+                              style={{ textAlign: "left", fontSize: "13px" }}
+                            >
+                              {u.ticketNumber}
+                            </p>
+                          </div>
+                        </Col>
+                        <Col>
+                          {(() => {
+                            if (parseInt(u.rating) == 1) {
+                              return <div>⭐</div>;
+                            } else if (parseInt(u.rating) == 2) {
+                              return <div>⭐⭐</div>;
+                            } else if (parseInt(u.rating) == 3) {
+                              return <div>⭐⭐⭐</div>;
+                            } else if (parseInt(u.rating) == 4) {
+                              return <div>⭐⭐⭐⭐</div>;
+                            } else {
+                              return <div>⭐⭐⭐⭐⭐</div>;
+                            }
+                          })()}
+                        </Col>
+                      </Row>
+                    </Card.Body>
+                  </Card>
+                </Col>
+              </Row>
+            </div>
+          ))}
+        <Dialog
+          open={open3}
+          onClose={handleClose3}
+          fullWidth={true}
+          maxWidth={"sm"}
+          // BackdropProps={{
+          //   style: {
+          //     backgroundColor: "rgba(0,0,0,0.1)",
+          //   },
+          // }}
+          // PaperProps={{
+          //   style: {
+          //     boxShadow: "0.5",
+          //   },
+          // }}
+        >
+          <DialogTitle id="alert-dialog-title">{"User Rating"} </DialogTitle>
+          <DialogContent>
+            <DialogContentText>
+              <Card style={{ width: "100%" }}>
+                <Card.Body>
+                  <Card.Title>
                     <Row>
-                      <Col xs="1">
-                        <Avatar name={u.name} size="60" round={true} />
-                      </Col>
                       <Col xs="2">
-                        <div className="numbers">
-                          <p style={{ textAlign: "left", fontSize: "15px" }}>
-                            <b>{u.name}</b>
-                          </p>
-                          <p
-                            className="card-category"
-                            style={{ textAlign: "left", fontSize: "13px" }}
-                          >
-                            {u.phone}
-                          </p>
-                          <p
-                            className="card-category"
-                            style={{ textAlign: "left", fontSize: "10px" }}
-                          >
-                            {u.email}
-                          </p>
-                          <p
-                            className="card-category"
-                            style={{ fontSize: "12px" }}
-                          >
-                            ㅤ
-                          </p>
-                        </div>
+                        <Avatar name={popupName} size="60" round={true} />
+                        <Avatar
+                          src={csLogo}
+                          size="20"
+                          round={true}
+                          style={{
+                            marginTop: `37px`,
+                            marginLeft: `-19px`,
+                            // marginBottom: `-20px`,
+                          }}
+                        />
                       </Col>
-                      <Col xs="1">
-                        {(() => {
-                          if (u.agent === "Iyas Operator") {
-                            return (
-                              <Avatar
-                                size="50"
-                                src="https://cdn.svgapi.com/vector/72987/man.svg"
-                              />
-                            );
-                          } else {
-                            return (
-                              <Avatar
-                                size="50"
-                                src="https://cdn.svgapi.com/vector/17019/woman.svg"
-                              />
-                            );
-                          }
-                        })()}
-                      </Col>
-                      <Col xs="2">
-                        <div className="numbers">
-                          <p style={{ textAlign: "left", fontSize: "15px" }}>
-                            <b>{u.agent}</b>
+                      <Col xs="5">
+                        <div>
+                          <p
+                            style={{
+                              textAlign: "left",
+                              // marginTop: `-2px`,
+                              marginBottom: `-2px`,
+                              fontSize: "15px",
+                            }}
+                          >
+                            <b>{popupName}</b>
                           </p>
                           <p
-                            className="card-category"
-                            style={{ textAlign: "left", fontSize: "13px" }}
+                            style={{
+                              textAlign: "left",
+                              marginBottom: `-0.2px`,
+                              fontSize: "13px",
+                            }}
                           >
-                            operator
+                            {/* {popupAgent} - {popupRole} */}
+                            {popupPhone}
                           </p>
-                        </div>
-                      </Col>
-                      <Col xs="4">
-                        <div className="numbers">
                           <p
-                            className="card-category"
-                            style={{ textAlign: "left", fontSize: "13px" }}
+                            style={{
+                              textAlign: "left",
+                              fontSize: "10px",
+                            }}
                           >
-                            Ticket Number:
+                            {popupRatingDate}
                           </p>
 
+                          <p style={{ fontSize: "13px" }}>ㅤ</p>
+                        </div>
+                      </Col>
+                      <Col xs="5">
+                        <div>
                           <p
-                            className="card-category"
-                            style={{ textAlign: "left", fontSize: "13px" }}
+                            style={{
+                              textAlign: "left",
+                              marginTop: `5px`,
+                              fontSize: "15px",
+                              marginBottom: `-2px`,
+                            }}
                           >
-                            {u.ticketNumber}
+                            {(() => {
+                              if (parseInt(popupRating) == 1) {
+                                return <div>⭐</div>;
+                              } else if (parseInt(popupRating) == 2) {
+                                return <div>⭐⭐</div>;
+                              } else if (parseInt(popupRating) == 3) {
+                                return <div>⭐⭐⭐</div>;
+                              } else if (parseInt(popupRating) == 4) {
+                                return <div>⭐⭐⭐⭐</div>;
+                              } else {
+                                return <div>⭐⭐⭐⭐⭐</div>;
+                              }
+                            })()}{" "}
+                          </p>
+                          <p
+                            style={{
+                              textAlign: "left",
+                              fontSize: "12px",
+                              marginBottom: `-3px`,
+                            }}
+                          >
+                            Ticket Number :
+                          </p>
+                          <p
+                            style={{
+                              textAlign: "left",
+                              fontSize: "8px",
+                            }}
+                          >
+                            {popupTicketNumber}
                           </p>
                         </div>
                       </Col>
-                      <Col>
-                        {(() => {
-                          if (parseInt(u.rating) == 1) {
-                            return <div>⭐</div>;
-                          } else if (parseInt(u.rating) == 2) {
-                            return <div>⭐⭐</div>;
-                          } else if (parseInt(u.rating) == 3) {
-                            return <div>⭐⭐⭐</div>;
-                          } else if (parseInt(u.rating) == 4) {
-                            return <div>⭐⭐⭐⭐</div>;
-                          } else {
-                            return <div>⭐⭐⭐⭐⭐</div>;
-                          }
-                        })()}
-                      </Col>
                     </Row>
-                  </Card.Body>
-                </Card>
-              </Col>
-            </Row>
-          ))}
+                  </Card.Title>
+                  <Card.Subtitle
+                    className="mb-2 text-muted"
+                    style={{
+                      textAlign: "left",
+                      fontSize: "13px",
+                    }}
+                  >
+                    Comments
+                  </Card.Subtitle>
+                  <Card.Text
+                    style={{
+                      textAlign: "left",
+                      fontSize: "13px",
+                    }}
+                  >
+                    {(() => {
+                      if (popupComment === "") {
+                        return " - ";
+                      } else {
+                        return popupComment;
+                      }
+                    })()}{" "}
+                    {/* {popupComment} */}
+                  </Card.Text>
+                </Card.Body>
+              </Card>
+            </DialogContentText>
+          </DialogContent>
+          <DialogActions>
+            <Button
+              onClick={handleClose3}
+              autoFocus
+              size="md"
+              style={{
+                textAlign: "left",
+                fontSize: "12px",
+                marginTop: `-40px`,
+                marginBottom: `5px`,
+                marginRight: `15px`,
+              }}
+            >
+              {/* <FontAwesome
+                      style={{
+                        textAlign: "center",
+                        alignItems: "center",
+                      }}
+                      name="back"
+                      size="1x"
+                    />
+                    ㅤOK */}
+              Close
+            </Button>
+          </DialogActions>
+        </Dialog>
 
         <div
           style={{
@@ -885,10 +1593,12 @@ function Dashboard() {
         >
           <PDFExport
             paperSize="A1"
-            margin={{ top: 40, left: 80, right: 80, bottom: 40 }}
+            landscape={true}
+            margin={{ top: 40, left: 80, right: 80, bottom: 100 }}
             ref={pdfExportComponent}
             title="Live Agent Report"
             subject="Live Agent Report"
+            fileName={pdfFileId}
           >
             <h1>Live Agent Rating Report</h1>
             <Row>
@@ -903,7 +1613,7 @@ function Dashboard() {
                 </p>
               </Col>
               <Col xs="auto">
-                <p>: {selectedChannelName}</p>
+                <p>: {pdfChannelTitle}</p>
               </Col>
             </Row>
             <Row>
@@ -913,7 +1623,7 @@ function Dashboard() {
                 </p>
               </Col>
               <Col xs="auto">
-                <p>: {selectedGroup}</p>
+                <p>: {pdfGroupTitle}</p>
               </Col>
             </Row>
             <Row>
@@ -923,7 +1633,7 @@ function Dashboard() {
                 </p>
               </Col>
               <Col xs="auto">
-                <p>: {selectedAgentName}</p>
+                <p>: {pdfAgentTitle}</p>
               </Col>
             </Row>
             <Row>
@@ -950,113 +1660,57 @@ function Dashboard() {
               </Col>
             </Row>
 
-            {user.map((u) => (
-              <Row>
-                <Col>
-                  <Card className="card-stats">
-                    <Card.Body>
-                      <Row>
-                        <Col xs="1">
-                          <Avatar name={u.name} size="60" round={true} />
-                        </Col>
-                        <Col xs="2">
-                          <div className="numbers">
-                            <p style={{ textAlign: "left" }}>
-                              <b>{u.name}</b>
-                            </p>
-                            <p
-                              className="card-category"
-                              style={{ textAlign: "left" }}
-                            >
-                              {u.phone}
-                            </p>
-                            <p
-                              className="card-category"
-                              style={{ textAlign: "left" }}
-                            >
-                              {u.email}
-                            </p>
-                            <p
-                              className="card-category"
-                              style={{ fontSize: "10px" }}
-                            >
-                              {"\n"}
-                            </p>
-                          </div>
-                        </Col>
-                        <Col xs="1">
-                          {(() => {
-                            if (u.agent === "Iyas Operator") {
-                              return (
-                                <Avatar
-                                  size="50"
-                                  src="https://cdn.svgapi.com/vector/72987/man.svg"
-                                />
-                              );
-                            } else {
-                              return (
-                                <Avatar
-                                  size="50"
-                                  src="https://cdn.svgapi.com/vector/17019/woman.svg"
-                                />
-                              );
-                            }
-                          })()}
-                        </Col>
-                        <Col xs="2">
-                          <div className="numbers">
-                            <p
-                              // className="card-category"
-                              style={{ textAlign: "left" }}
-                            >
-                              <b>{u.agent}</b>
-                            </p>
-                            <p
-                              className="card-category"
-                              style={{ textAlign: "left" }}
-                            >
-                              operator
-                            </p>
-                          </div>
-                        </Col>
-                        <Col xs="4">
-                          <div className="numbers">
-                            <p
-                              className="card-category"
-                              style={{ textAlign: "left" }}
-                            >
-                              Ticket Number:
-                            </p>
-
-                            <p
-                              className="card-category"
-                              style={{ textAlign: "left" }}
-                            >
-                              {u.ticketNumber}
-                            </p>
-                          </div>
-                        </Col>
-                        <Col>
-                          {(() => {
-                            if (parseInt(u.rating) == 1) {
-                              return <div>⭐</div>;
-                            } else if (parseInt(u.rating) == 2) {
-                              return <div>⭐⭐</div>;
-                            } else if (parseInt(u.rating) == 3) {
-                              return <div>⭐⭐⭐</div>;
-                            } else if (parseInt(u.rating) == 4) {
-                              return <div>⭐⭐⭐⭐</div>;
-                            } else {
-                              return <div>⭐⭐⭐⭐⭐</div>;
-                            }
-                          })()}
-                        </Col>
-                      </Row>
-                    </Card.Body>
-                  </Card>
-                </Col>
-              </Row>
-            ))}
+            <Table striped bordered responsive="sm">
+              <thead>
+                <tr>
+                  <th colSpan="3">
+                    <b>Customer Name</b>
+                  </th>
+                  <th colSpan="2">
+                    <b>Phone Number</b>
+                  </th>
+                  <th colSpan="2">
+                    <b>Channel Type</b>
+                  </th>
+                  <th colSpan="2">
+                    <b>Group</b>
+                  </th>
+                  <th colSpan="3">
+                    <b>Agent Name</b>
+                  </th>
+                  {/* <th>
+                    <b> </b>
+                  </th> */}
+                  <th colSpan="6">
+                    <b>Ticket Number</b>
+                  </th>
+                  <th colSpan="2">
+                    <b>Closed Date</b>
+                  </th>
+                  <th>
+                    <b>Rating</b>
+                  </th>
+                  <th colSpan="6">
+                    <b>Comment</b>
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {user.map((u) => (
+                  <tr>
+                    <td colSpan="3">{u.name}</td>
+                    <td colSpan="2">{u.phone}</td>
+                    <td colSpan="2">{u.channel}</td>
+                    <td colSpan="2">{u.group}</td>
+                    <td colSpan="3">{u.agent}</td>
+                    <td colSpan="6">{u.ticketNumber}</td>
+                    <td colSpan="2">{formatDate(u.closedDate)}</td>
+                    <td>{u.rating}</td>
+                    <td colSpan="6">{u.comment}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </Table>
           </PDFExport>
         </div>
       </Container>
