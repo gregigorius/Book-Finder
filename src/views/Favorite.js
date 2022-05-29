@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import * as React from "react";
 import * as ReactDOM from "react-dom";
-import CanvasJSReact from "../assets/canvasjs.react";
 import ImageList from '@mui/material/ImageList';
 import ImageListItem from '@mui/material/ImageListItem';
 import ImageListItemBar from '@mui/material/ImageListItemBar';
