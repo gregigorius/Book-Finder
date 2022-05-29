@@ -18,11 +18,7 @@ import {
   getBookData
 } from "./API";
 
-
-var CanvasJSChart = CanvasJSReact.CanvasJSChart;
-var FontAwesome = require("react-fontawesome");
-
-import { Button, Card, Container, Row, Col, Table } from "react-bootstrap";
+import { Card, Container, Row, Col, Table } from "react-bootstrap";
 
 function Dashboard() {
   useEffect(() => {
@@ -47,12 +43,16 @@ function Dashboard() {
           return true;
         }
         return false;
-
       }
+
+      const addHttps = (url) => {
+        return url.replace(/^http:\/\//i, 'https://');
+      }
+      
       console.table(data);
       console.dir(favArray);
       const names = data.items.map((row) => ({
-        img: row.volumeInfo.imageLinks.smallThumbnail,
+        img: addHttps(row.volumeInfo.imageLinks.smallThumbnail),
         title: row.volumeInfo.title,
         author: row.volumeInfo.authors,
         rating: row.volumeInfo.ratingsCount,
