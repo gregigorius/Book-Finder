@@ -4,7 +4,7 @@
   "engines": {
     "node": "12.10.0",
     "npm": "6.14.15",
-    "yarn":"1.22.4"
+    "yarn": "1.22.4"
   },
   "dependencies": {
     "@emotion/react": "^11.6.0",
@@ -19,14 +19,11 @@
     "axios": "^0.24.0",
     "bootstrap": "4.6.0",
     "canvasjs": "^1.8.3",
-    "chartist": "0.10.1",
     "clean": "^4.0.2",
     "depcheck": "^1.4.2",
-    "file-saver": "^2.0.5",
     "gulp": "4.0.2",
     "gulp-append-prepend": "1.0.8",
     "interframe": "^2.2.0",
-    "jspdf": "^2.4.0",
     "material-ui-search-bar": "^1.0.0",
     "node-sass": "^4.14.1",
     "prop-types": "^15.7.2",
@@ -38,14 +35,13 @@
     "react-dom": "17.0.1",
     "react-fontawesome": "^1.7.1",
     "react-moment": "^1.1.1",
-    "react-notification-alert": "0.0.13",
     "react-rating-stars-component": "^2.2.0",
     "react-router": "5.2.0",
     "react-router-dom": "5.2.0",
     "react-scripts": "4.0.1",
     "react-select": "^5.1.0",
     "react-stars": "^2.2.5",
-    "styled-components": "^5.3.3",
+    "styled-components": "^5.3.3"
   },
   "optionalDependencies": {
     "jquery": "3.5.1",
