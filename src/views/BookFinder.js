@@ -241,8 +241,10 @@ function Dashboard() {
                           </Col>
                         ))}
                       </ImageList>
+                      <FavoriteIcon> </FavoriteIcon>
                     </Row>
                     :
+                    // No Data Found 
                     <Row className="justify-content-md-center">
                       <img style={{
                         marginTop: `10px`,
