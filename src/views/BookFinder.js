@@ -48,7 +48,7 @@ function Dashboard() {
       const addHttps = (url) => {
         return url.replace(/^http:\/\//i, 'https://');
       }
-      
+
       console.table(data);
       console.dir(favArray);
       const names = data.items.map((row) => ({
@@ -74,15 +74,15 @@ function Dashboard() {
   }
   const getColumns = (width) => {
     if (width < breakpoints.sm) {
-      return 5
+      return 3
     } else if (width < breakpoints.md) {
-      return 6
+      return 4
     } else if (width < breakpoints.lg) {
-      return 7
+      return 6
     } else if (width < breakpoints.xl) {
-      return 8
+      return 7
     } else {
-      return 9
+      return 8
     }
   }
   const [columns, setColumns] = useState(getColumns(window.innerWidth))
