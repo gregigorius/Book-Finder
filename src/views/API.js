@@ -13,7 +13,7 @@ const getData = async (url, callback, errorCallback) => {
 };
 
 export const getBookData = (payload, callback, errorCallback) => {
-  const url = `${apiEndpoint}` + payload + "&maxResults=42";
+  const url = `${apiEndpoint}` + payload + "&maxResults=40";
   console.log(url);
   getData(url, callback, errorCallback);
 };
