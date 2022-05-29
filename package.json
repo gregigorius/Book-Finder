@@ -2,7 +2,7 @@
   "name": "light-bootstrap-dashboard-react",
   "version": "2.0.1",
   "engines": {
-    "node": "12.18.2",
+    "node": "12.10.0",
     "npm": "6.14.15",
     "yarn":"1.22.4"
   },
@@ -16,12 +16,6 @@
     "@mui/icons-material": "^5.2.1",
     "@mui/material": "^5.1.1",
     "@popperjs/core": "^2.10.2",
-    "@progress/kendo-drawing": "^1.15.0",
-    "@progress/kendo-licensing": "^1.2.1",
-    "@progress/kendo-react-dateinputs": "^4.10.0",
-    "@progress/kendo-react-intl": "^4.10.0",
-    "@progress/kendo-react-pdf": "^4.10.0",
-    "@react-pdf/renderer": "^2.0.20",
     "axios": "^0.24.0",
     "bootstrap": "4.6.0",
     "canvasjs": "^1.8.3",
@@ -52,7 +46,6 @@
     "react-select": "^5.1.0",
     "react-stars": "^2.2.5",
     "styled-components": "^5.3.3",
-    "xlsx": "^0.17.3"
   },
   "optionalDependencies": {
     "jquery": "3.5.1",
