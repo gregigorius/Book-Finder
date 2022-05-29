@@ -1,6 +1,6 @@
 {
   "name": "light-bootstrap-dashboard-react",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "engines": {
     "node": "12.18.2",
     "npm": "6.14.15",

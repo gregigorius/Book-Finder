@@ -10,6 +10,7 @@ import "./assets/css/demo.css";
 import "@fortawesome/fontawesome-free/css/all.min.css";
 
 import AdminLayout from "layouts/Admin.js";
+import FavoriteLayout from "layouts/Favorite.js";
 
 
 
@@ -17,8 +18,8 @@ import AdminLayout from "layouts/Admin.js";
 ReactDOM.render(
   <BrowserRouter>
     <Switch>
-      <Route path="/admin" render={(props) => <AdminLayout {...props} />} />
-      <Redirect from="/" to="/admin/dashboard" />
+      <Route path="/" render={(props) => <AdminLayout {...props} />} />
+      <Redirect from="/" to="/dashboard" />
     </Switch>
   </BrowserRouter>,
   document.getElementById("root")
