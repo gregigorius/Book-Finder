@@ -241,7 +241,6 @@ function Dashboard() {
                           </Col>
                         ))}
                       </ImageList>
-                      <FavoriteIcon> </FavoriteIcon>
                     </Row>
                     :
                     // No Data Found 
